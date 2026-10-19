@@ -1,0 +1,120 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  USER
+  ADMIN
+  STAFF
+}
+
+model User {
+  id          String                 @id @default(uuid())
+  name        String?
+  email       String                 @unique
+  password    String
+  role        Role                   @default(USER)
+  createdAt   DateTime               @default(now())
+  updatedAt   DateTime               @updatedAt
+  events      UserEvent[]
+  staffAccess EventStaffAssignment[]
+}
+
+model Template {
+  id           String      @id @default(uuid())
+  name         String
+  type         String
+  description  String?     @db.Text
+  thumbnail    String?
+  isPremium    Boolean     @default(false)
+  defaultTheme Json?
+  sections     Json?
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+  userEvents   UserEvent[]
+}
+
+model UserEvent {
+  id           String                 @id @default(uuid())
+  slug         String                 @unique
+  title        String
+  type         String
+  date         DateTime?
+  location     String?
+  templateId   String?
+  template     Template?              @relation(fields: [templateId], references: [id])
+  theme        Json?
+  sections     Json?
+  musicData    Json?
+  isPublished  Boolean                @default(false)
+  userId       String
+  user         User                   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  guests       Guest[]
+  messages     GuestMessage[]
+  tables       Table[]
+  staffMembers EventStaffAssignment[]
+  createdAt    DateTime               @default(now())
+  updatedAt    DateTime               @updatedAt
+}
+
+// Authorizes a STAFF user to scan check-ins for a specific event
+model EventStaffAssignment {
+  id        String    @id @default(uuid())
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  eventId   String
+  event     UserEvent @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  passCode  String    // 6-digit PIN issued by the event Host
+  createdAt DateTime  @default(now())
+
+  @@unique([userId, eventId])
+}
+
+model Table {
+  id        String    @id @default(uuid())
+  eventId   String
+  event     UserEvent @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  name      String    // e.g. "Table 01 – Bride VIP"
+  capacity  Int       @default(10)
+  guests    Guest[]
+  createdAt DateTime  @default(now())
+}
+
+model Guest {
+  id           String     @id @default(uuid())
+  eventId      String
+  event        UserEvent  @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  tableId      String?
+  table        Table?     @relation(fields: [tableId], references: [id], onDelete: SetNull)
+  name         String
+  phone        String?
+  status       String     @default("PENDING") // ATTENDING | DECLINED | PENDING | CHECKED_IN
+  pax          Int        @default(1)
+  foodPref     String?
+  checkInToken String     @unique @default(uuid()) // Personal QR scanned at the door
+  checkedInAt  DateTime?
+  createdAt    DateTime   @default(now())
+}
+
+model GuestMessage {
+  id        String    @id @default(uuid())
+  eventId   String
+  event     UserEvent @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  guestName String
+  message   String    @db.Text
+  isPrivate Boolean   @default(false)
+  createdAt DateTime  @default(now())
+}
+
+model Song {
+  id        String   @id @default(uuid())
+  title     String
+  artist    String?
+  url       String
+  createdAt DateTime @default(now())
+}
