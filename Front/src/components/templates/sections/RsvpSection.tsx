@@ -21,6 +21,7 @@ export function RsvpSection({ data, eventId, theme }: Props) {
     message: "",
   })
   const [submitted, setSubmitted] = React.useState(false)
+  const [checkInToken, setCheckInToken] = React.useState<string | null>(null)
   const [loading, setLoading] = React.useState(false)
   const [error, setError] = React.useState("")
 
@@ -29,15 +30,19 @@ export function RsvpSection({ data, eventId, theme }: Props) {
     setLoading(true)
     setError("")
     try {
-      const res = await fetch(`/api/events/${eventId}/rsvp`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api"}/public/events/${eventId}/rsvp`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(form),
       })
-      if (!res.ok) throw new Error("Failed")
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.message || "Failed to submit RSVP")
+      if (data?.data?.checkInToken) {
+        setCheckInToken(data.data.checkInToken)
+      }
       setSubmitted(true)
-    } catch {
-      setError("Something went wrong. Please try again.")
+    } catch (err: any) {
+      setError(err?.message || "Something went wrong. Please try again.")
     } finally {
       setLoading(false)
     }
@@ -46,17 +51,55 @@ export function RsvpSection({ data, eventId, theme }: Props) {
   if (submitted) {
     return (
       <section id="rsvp" className="py-24 px-6" style={{ backgroundColor: `${theme.primaryColor}08` }}>
-        <div className="max-w-md mx-auto text-center">
+        <div className="max-w-md mx-auto text-center space-y-6">
           <motion.div
             initial={{ scale: 0 }}
             animate={{ scale: 1 }}
-            className="w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6"
+            className="w-16 h-16 rounded-full flex items-center justify-center mx-auto"
             style={{ backgroundColor: theme.primaryColor }}
           >
-            <Check className="w-10 h-10 text-white" />
+            <Check className="w-8 h-8 text-white" />
           </motion.div>
-          <h2 className="text-3xl font-bold mb-3">សូមអរគុណ! 🙏</h2>
-          <p className="opacity-70">Your RSVP has been received. We can't wait to celebrate with you!</p>
+
+          <div>
+            <h2 className="text-3xl font-bold mb-2">សូមអរគុណ! 🙏</h2>
+            <p className="opacity-75 text-sm">
+              Your RSVP has been confirmed. We look forward to celebrating with you!
+            </p>
+          </div>
+
+          {form.status === "ATTENDING" && checkInToken && (
+            <motion.div
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="bg-card rounded-2xl p-6 border shadow-lg text-center space-y-3"
+            >
+              <div className="inline-block p-3 rounded-2xl bg-muted/60 mb-1">
+                <div className="w-32 h-32 bg-white rounded-xl p-2 mx-auto flex items-center justify-center border shadow-inner">
+                  {/* Clean SVG QR code representation */}
+                  <svg className="w-full h-full text-zinc-900" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M2 2h8v8H2V2zm2 2v4h4V4H4zm10-2h8v8h-8V2zm2 2v4h4V4h-4zM2 14h8v8H2v-8zm2 2v4h4v-4H4zm13-2h3v3h-3v-3zm0 5h3v3h-3v-3zm-3-5h2v2h-2v-2zm0 4h2v4h-2v-4zm5 2h2v2h-2v-2z" />
+                  </svg>
+                </div>
+              </div>
+
+              <div>
+                <span className="text-[10px] font-bold uppercase tracking-widest text-primary">
+                  Official Guest Digital Pass
+                </span>
+                <h3 className="text-lg font-bold">{form.name}</h3>
+                <p className="text-xs text-muted-foreground">{form.pax} Guest(s)</p>
+              </div>
+
+              <div className="p-2.5 rounded-xl bg-muted/50 text-[11px] font-mono text-muted-foreground break-all">
+                Pass ID: {checkInToken.slice(0, 18)}...
+              </div>
+
+              <p className="text-[11px] text-muted-foreground italic">
+                📸 Please screenshot this QR pass for fast check-in at the door.
+              </p>
+            </motion.div>
+          )}
         </div>
       </section>
     )
