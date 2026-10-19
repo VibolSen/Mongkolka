@@ -38,8 +38,9 @@ function CreateEventForm() {
   const searchParams = useSearchParams()
   const preSelected = searchParams.get("template")
 
+  const [dynamicTemplates, setDynamicTemplates] = React.useState<any[]>(templates)
   const [step, setStep] = React.useState<1 | 2>(preSelected ? 2 : 1)
-  const [selected, setSelected] = React.useState(
+  const [selected, setSelected] = React.useState<any>(
     preSelected ? templates.find(t => t.id === preSelected) ?? null : null
   )
   const [title, setTitle] = React.useState("")
@@ -47,6 +48,35 @@ function CreateEventForm() {
   const [slugEdited, setSlugEdited] = React.useState(false)
   const [loading, setLoading] = React.useState(false)
   const [error, setError] = React.useState("")
+
+  React.useEffect(() => {
+    async function loadTemplates() {
+      try {
+        const res = await api.get<{ success: boolean; data: any[] }>("/templates")
+        if (res.success && Array.isArray(res.data) && res.data.length > 0) {
+          const mapped = res.data.map((t: any) => ({
+            id: t.id,
+            type: t.type,
+            name: t.name,
+            nameKm: t.type === "WEDDING_KHMER" ? "ពិធីអាពាហ៍ពិពាហ៍ខ្មែរ" : "ពិធីអាពាហ៍ពិពាហ៍",
+            icon: t.type === "WEDDING_KHMER" ? Crown : Sparkles,
+            gradient: t.isPremium ? "from-amber-400 to-yellow-600" : "from-rose-400 to-pink-600",
+            emoji: t.isPremium ? "💍" : "💒",
+            popular: t.isPremium,
+            defaultTheme: t.defaultTheme,
+          }))
+          setDynamicTemplates(mapped)
+          if (preSelected) {
+            const found = mapped.find((m: any) => m.id === preSelected || m.type === preSelected)
+            if (found) setSelected(found)
+          }
+        }
+      } catch {
+        // Fallback to static defaults
+      }
+    }
+    loadTemplates()
+  }, [preSelected])
 
   // Auto-generate slug from title
   React.useEffect(() => {
@@ -64,7 +94,8 @@ function CreateEventForm() {
         title,
         type: selected.type,
         slug,
-        templateId: null,
+        templateId: selected.id && !selected.id.includes("-") ? selected.id : null,
+        theme: selected.defaultTheme || undefined,
       })
       const eventData = res.data || res.event
       if (!eventData?.id) throw new Error(res.error || res.message || "Failed to create event")
@@ -108,7 +139,7 @@ function CreateEventForm() {
       {step === 1 && (
         <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}>
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
-            {templates.map((tpl) => {
+            {dynamicTemplates.map((tpl) => {
               const Icon = tpl.icon
               const isSelected = selected?.id === tpl.id
               return (

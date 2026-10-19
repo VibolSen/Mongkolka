@@ -11,6 +11,7 @@ import publicRoutes from "./routes/public.routes.js"
 import staffRoutes from "./routes/staff.routes.js"
 import adminRoutes from "./routes/admin.routes.js"
 import songRoutes from "./routes/songs.routes.js"
+import templateRoutes from "./routes/templates.routes.js"
 import { handleUpload } from "./controllers/upload.controller.js"
 import { requireAuth } from "./middleware/auth.middleware.js"
 
@@ -40,6 +41,7 @@ app.use("/api/public", publicRoutes)
 app.use("/api/staff", staffRoutes)
 app.use("/api/admin", adminRoutes)
 app.use("/api/songs", songRoutes)
+app.use("/api/templates", templateRoutes)
 app.post("/api/upload", requireAuth, handleUpload)
 
 // Error Handler

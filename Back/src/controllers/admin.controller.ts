@@ -70,12 +70,57 @@ export async function updateUserRole(req: Request, res: Response) {
   }
 }
 
+export async function deleteUser(req: any, res: Response) {
+  try {
+    const { id } = req.params
+    if (req.user?.id === id) {
+      return res.status(400).json({ success: false, message: "You cannot delete your own admin account." })
+    }
+
+    await prisma.user.delete({ where: { id } })
+    return res.json({ success: true, message: "User deleted successfully" })
+  } catch (error: any) {
+    return res.status(500).json({ success: false, message: "Failed to delete user", error: error.message })
+  }
+}
+
+export async function deleteEvent(req: Request, res: Response) {
+  try {
+    const { id } = req.params
+    await prisma.userEvent.delete({ where: { id } })
+    return res.json({ success: true, message: "Event deleted successfully" })
+  } catch (error: any) {
+    return res.status(500).json({ success: false, message: "Failed to delete event", error: error.message })
+  }
+}
+
+export async function togglePublishEvent(req: Request, res: Response) {
+  try {
+    const { id } = req.params
+    const event = await prisma.userEvent.findUnique({ where: { id } })
+    if (!event) return res.status(404).json({ success: false, message: "Event not found" })
+
+    const updated = await prisma.userEvent.update({
+      where: { id },
+      data: { isPublished: !event.isPublished },
+    })
+
+    return res.json({
+      success: true,
+      data: updated,
+      message: `Event ${updated.isPublished ? "published" : "unpublished"} successfully`,
+    })
+  } catch (error: any) {
+    return res.status(500).json({ success: false, message: "Failed to toggle event publish status", error: error.message })
+  }
+}
+
 export async function listAllEvents(req: Request, res: Response) {
   try {
     const events = await prisma.userEvent.findMany({
       include: {
-        user: { select: { name: true, email: true } },
-        _count: { select: { guests: true, messages: true } },
+        user: { select: { id: true, name: true, email: true } },
+        _count: { select: { guests: true, messages: true, tables: true } },
       },
       orderBy: { createdAt: "desc" },
     })
@@ -84,3 +129,4 @@ export async function listAllEvents(req: Request, res: Response) {
     return res.status(500).json({ success: false, message: "Failed to fetch platform events", error: error.message })
   }
 }
+

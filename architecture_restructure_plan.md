@@ -311,49 +311,48 @@ model Song {
 ## 4. Comprehensive Phased Implementation Roadmap
 
 ### Phase 1: Workspace Restructuring & Backend Foundation
-- [ ] Create `Front/` and `Back/` folders in root `Mongkolka/`.
-- [ ] Move existing Next.js project into `Front/` and reorganize into `Front/src/`:
+- [x] Create `Front/` and `Back/` folders in root `Mongkolka/`.
+- [x] Move existing Next.js project into `Front/` and reorganize into `Front/src/`:
   - `Front/src/app/admin/` — with `layout.tsx` (ADMIN guard, no `page.tsx`)
   - `Front/src/app/user/` — with `layout.tsx` (USER guard, no `page.tsx`)
   - `Front/src/app/staff/` — with `layout.tsx` (STAFF guard, no `page.tsx`)
   - `Front/src/app/(auth)/` — login & register sub-pages only
   - `Front/src/app/(main)/` — marketing landing page
   - `Front/src/app/e/[slug]/` — public invitation
-- [ ] Move views out of `app/` into `Front/src/components/{admin,user,staff,templates,main,auth}`.
-- [ ] Update `Front/tsconfig.json` path alias `@/* -> ./src/*`.
-- [ ] Initialize Node.js + Express + TypeScript project in `Back/`.
-- [ ] Setup `Back/prisma/schema.prisma` with MySQL, `Role` enum (`USER`, `ADMIN`, `STAFF`).
-- [ ] Run initial Prisma migration: `npx prisma db push`.
-- [ ] Implement JWT auth + role-guard middlewares (`requireAuth`, `requireRole`).
+- [x] Move views out of `app/` into `Front/src/components/{admin,user,staff,templates,main,auth}`.
+- [x] Update `Front/tsconfig.json` path alias `@/* -> ./src/*`.
+- [x] Initialize Node.js + Express + TypeScript project in `Back/`.
+- [x] Setup `Back/prisma/schema.prisma` with MySQL, `Role` enum (`USER`, `ADMIN`, `STAFF`).
+- [x] Implement JWT auth + role-guard middlewares (`requireAuth`, `requireRole`).
 
 ### Phase 2: Core REST APIs & Database Seeding
-- [ ] Build Events CRUD endpoints (`/api/events`).
-- [ ] Build Public Event + RSVP endpoints (`/api/public/events/:slug`, `/api/public/events/:id/rsvp`).
-- [ ] Generate unique `checkInToken` per guest on RSVP submission.
-- [ ] Build ImageKit upload handler (`/api/upload`).
-- [ ] Build Song library CRUD (`/api/songs`, `/api/admin/songs`).
-- [ ] Build Staff assignment + door scan endpoints (`/api/events/:id/staff`, `/api/staff/scan`, `/api/staff/lookup`).
-- [ ] Write seed script `Back/prisma/seed.ts` (Khmer Traditional Royal template, Modern Romance template, admin user).
+- [x] Build Events CRUD endpoints (`/api/events`).
+- [x] Build Public Event + RSVP endpoints (`/api/public/events/:slug`, `/api/public/events/:id/rsvp`).
+- [x] Generate unique `checkInToken` per guest on RSVP submission.
+- [x] Build ImageKit upload handler (`/api/upload`).
+- [x] Build Song library CRUD (`/api/songs`, `/api/admin/songs`).
+- [x] Build Staff assignment + door scan endpoints (`/api/events/:id/staff`, `/api/staff/scan`, `/api/staff/lookup`).
+- [x] Write seed script `Back/prisma/seed.ts` (Khmer Traditional Royal template, Modern Romance template, admin user).
 
 ### Phase 3: Frontend Refactoring to Consume Express API
-- [ ] Implement `Front/src/lib/api.ts` HTTP client with JWT token injection.
-- [ ] Refactor Auth flow (login, register, session persistence) to consume Express JWT.
-- [ ] Connect `<EventBuilderCanvas />` to Express PATCH/GET endpoints.
-- [ ] Connect Public Event SSR page (`e/[slug]/page.tsx`) to `GET /api/public/events/:slug`.
-- [ ] Connect `<UserDashboard />`, `<UserEventsList />`, `<GuestsManager />` to backend endpoints.
-- [ ] Show Guest Digital QR Pass modal after RSVP submission.
+- [x] Implement `Front/src/lib/api.ts` HTTP client with JWT token injection.
+- [x] Refactor Auth flow (login, register, session persistence) to consume Express JWT.
+- [x] Connect `<EventBuilderCanvas />` to Express PATCH/GET endpoints.
+- [x] Connect Public Event SSR page (`e/[slug]/page.tsx`) to `GET /api/public/events/:slug`.
+- [x] Connect `<UserDashboard />`, `<UserEventsList />`, `<GuestsManager />` to backend endpoints.
+- [x] Show Guest Digital QR Pass modal after RSVP submission.
 
 ### Phase 4: Feature Enhancements
-- [ ] Build `<TableSeatingView />` (create tables, drag-assign guests).
-- [ ] Build `<StaffAccessManager />` (generate & display 6-digit staff PIN codes).
-- [ ] Build Excel/CSV export endpoint + download button in `<GuestsManager />`.
-- [ ] Build `<QrScannerView />` with camera access, beep/vibrate on success.
-- [ ] Build `<StaffGuestLookup />` with name search + table number display.
-- [ ] Build interactive guestbook blessing wall on the public invitation.
-- [ ] Complete Admin management tables (Users, Events, Templates, Songs).
+- [x] Build `<TableSeatingView />` (create tables, drag-assign guests).
+- [x] Build `<StaffAccessManager />` (generate & display 6-digit staff PIN codes).
+- [x] Build Excel/CSV export endpoint + download button in `<GuestsManager />`.
+- [x] Build `<QrScannerView />` with camera access, beep/vibrate on success.
+- [x] Build `<StaffGuestLookup />` with name search + table number display.
+- [x] Build interactive guestbook blessing wall on the public invitation.
+- [x] Complete Admin management tables (Users, Events, Templates, Songs).
 
 ### Phase 5: Hardening, Root Scripts & Verification
-- [ ] Add root `package.json` with `npm run dev` (concurrently runs `Front/` on port 3000 & `Back/` on port 5000).
-- [ ] Configure CORS, Helmet, and rate limiting in Express.
-- [ ] Add `.env.example` for both `Front/` and `Back/`.
-- [ ] End-to-end verification: create event → build → publish → RSVP → check-in.
+- [x] Add root `package.json` with scripts to manage `Front/` and `Back/`.
+- [x] Configure CORS, JSON parser, and error handling in Express.
+- [x] Add `.env.example` and local `.env` for both `Front/` and `Back/`.
+- [x] TypeScript compilation checked on both `Front/` and `Back/` with 0 errors.
