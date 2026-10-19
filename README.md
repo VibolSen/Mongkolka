@@ -44,7 +44,6 @@ Mongkolka/
 │   └── tsconfig.json
 │
 ├── architecture_restructure_plan.md     # Full architectural restructuring blueprint & matrix
-├── package.json                         # Root runner scripts
 └── README.md
 ```
 
@@ -84,17 +83,6 @@ npm install
 
 # Start the Next.js development server (runs on http://localhost:3000)
 npm run dev
-```
-
-### 3. Root Convenience Commands
-
-From the root directory (`Mongkolka/`):
-
-```bash
-npm run dev:back         # Starts backend Express API (Port 5000)
-npm run dev:front        # Starts frontend Next.js App (Port 3000)
-npm run prisma:push      # Syncs Prisma schema with MySQL
-npm run prisma:seed      # Re-runs database seed script
 ```
 
 ---
