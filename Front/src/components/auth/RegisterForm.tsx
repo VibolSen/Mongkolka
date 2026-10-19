@@ -129,7 +129,7 @@ export function RegisterForm() {
       </form>
 
       <p className="text-sm text-center text-muted-foreground mt-6">
-        {t("auth.register.hasAccount") || "Already have an account?"}{" "}
+        {t("auth.register.haveAccount") || "Already have an account?"}{" "}
         <Link href="/login" className="text-primary font-medium hover:underline">
           {t("auth.register.signIn") || "Sign In"}
         </Link>
