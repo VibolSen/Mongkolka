@@ -1,0 +1,145 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+model Account {
+  id                String  @id @default(auto()) @map("_id") @db.ObjectId
+  userId            String  @db.ObjectId
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.String
+  access_token      String? @db.String
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.String
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
+  sessionToken String   @unique
+  userId       String   @db.ObjectId
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+model User {
+  id            String    @id @default(auto()) @map("_id") @db.ObjectId
+  name          String?
+  email         String?   @unique
+  emailVerified DateTime?
+  image         String?
+  password      String?
+  role          Role      @default(USER)
+  accounts      Account[]
+  sessions      Session[]
+  events        UserEvent[]
+}
+
+model VerificationToken {
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+// ─── TEMPLATE ENGINE MODELS ─────────────────────────────────────────
+
+model Template {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  name        String   // e.g., "Khmer Traditional Royal"
+  type        String   // e.g., "WEDDING_KHMER", "PRE_WEDDING", "BIRTHDAY"
+  description String?
+  thumbnail   String?  // Cover image for the gallery
+  isPremium   Boolean  @default(false)
+  
+  // JSON structure defining default sections and default theme
+  defaultTheme Json?
+  sections     Json?
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  userEvents  UserEvent[]
+}
+
+model UserEvent {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  slug        String   @unique // For public URL: mongkol.com/e/sokha-and-pheap
+  title       String
+  type        String
+  date        DateTime?
+  location    String?
+  
+  // Dynamic Template Data
+  templateId  String?  @db.ObjectId
+  template    Template? @relation(fields: [templateId], references: [id])
+  theme       Json?    // Custom colors/fonts overriding template defaults
+  sections    Json?    // Array of active sections with user content
+  musicData   Json?    // Background music config
+  isPublished Boolean  @default(false)
+
+  userId      String   @db.ObjectId
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  guests      Guest[]
+  messages    GuestMessage[]
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Guest {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  eventId     String   @db.ObjectId
+  event       UserEvent @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  
+  name        String
+  phone       String?
+  status      String   @default("PENDING") // ATTENDING, DECLINED, PENDING
+  pax         Int      @default(1)         // Number of attendees
+  foodPref    String?  // e.g., "Halal", "Vegetarian"
+  
+  createdAt   DateTime @default(now())
+}
+
+model GuestMessage {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  eventId     String   @db.ObjectId
+  event       UserEvent @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  
+  guestName   String
+  message     String
+  isPrivate   Boolean  @default(false) // If true, only couple sees it
+  
+  createdAt   DateTime @default(now())
+}
+
+model Song {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  title     String
+  artist    String?
+  url       String
+  createdAt DateTime @default(now())
+}
