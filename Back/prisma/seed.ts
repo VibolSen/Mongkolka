@@ -7,23 +7,27 @@ async function main() {
   console.log("🌱 Starting Mongkolka database seeding...")
 
   // 1. Seed Default Admin User
-  const adminEmail = "admin@mongkolka.com"
-  const existingAdmin = await prisma.user.findUnique({ where: { email: adminEmail } })
+  const adminEmail = "vibolsen2002@gmail.com"
+  const hashedPassword = await bcrypt.hash("Vibol@2020", 10)
 
-  if (!existingAdmin) {
-    const hashedPassword = await bcrypt.hash("admin123456", 10)
-    await prisma.user.create({
-      data: {
-        name: "Mongkol Administrator",
-        email: adminEmail,
-        password: hashedPassword,
-        role: "ADMIN",
-      },
-    })
-    console.log("✅ Admin user created: admin@mongkolka.com (password: admin123456)")
-  } else {
-    console.log("ℹ️ Admin user already exists")
-  }
+  // Clean up previous placeholder admin if present
+  await prisma.user.deleteMany({ where: { email: "admin@mongkolka.com" } })
+
+  const admin = await prisma.user.upsert({
+    where: { email: adminEmail },
+    update: {
+      name: "Vibol",
+      password: hashedPassword,
+      role: "ADMIN",
+    },
+    create: {
+      name: "Vibol",
+      email: adminEmail,
+      password: hashedPassword,
+      role: "ADMIN",
+    },
+  })
+  console.log(`✅ Default admin configured: ${admin.email} (Username: Vibol)`)
 
   // 2. Seed Default Templates
   const templates = [

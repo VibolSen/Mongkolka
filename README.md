@@ -70,7 +70,7 @@ npm run prisma:seed
 npm run dev
 ```
 
-> **Default Seeded Admin**: `admin@mongkolka.com` / `admin123456`
+> **Default Seeded Admin**: `vibolsen2002@gmail.com` / `Vibol@2020` (Username: `Vibol`)
 
 ### 2. Frontend Setup & Run
 

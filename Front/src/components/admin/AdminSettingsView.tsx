@@ -230,7 +230,7 @@ export function AdminSettingsView() {
                   Admin Name
                 </span>
                 <div className="font-bold text-foreground mt-1">
-                  {user?.name || "Mongkol Administrator"}
+                  {user?.name || "Vibol"}
                 </div>
               </div>
 
@@ -239,7 +239,7 @@ export function AdminSettingsView() {
                   Admin Email
                 </span>
                 <div className="font-bold text-foreground mt-1 font-mono">
-                  {user?.email || "admin@mongkolka.com"}
+                  {user?.email || "vibolsen2002@gmail.com"}
                 </div>
               </div>
 
