@@ -25,3 +25,6 @@ yarn-debug.log*
 .DS_Store
 *.pem
 *.tsbuildinfo
+
+# Internal planning & specs
+architecture_restructure_plan.md
